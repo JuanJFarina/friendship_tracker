@@ -3,45 +3,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'friend.dart';
 import 'utils.dart';
-// import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:timezone/timezone.dart' as tz;
-
-// void _scheduleDailyMorningNotification() async {
-//   await flutterLocalNotificationsPlugin.zonedSchedule(
-//     0, // Notification ID
-//     'Friendship Tracker',
-//     'Remember to check in with your friends today!',
-//     _nextInstanceOfMorning(),
-//     const NotificationDetails(
-//       android: AndroidNotificationDetails(
-//         'daily_morning_channel_id',
-//         'Daily Morning Notification',
-//         'Notification to remind you to track your friendships every morning',
-//         importance: Importance.high,
-//         priority: Priority.high,
-//       ),
-//     ),
-//     androidAllowWhileIdle: true,
-//     uiLocalNotificationDateInterpretation:
-//         UILocalNotificationDateInterpretation.absoluteTime,
-//     matchDateTimeComponents: DateTimeComponents.time, // Daily at the same time
-//   );
-// }
-
-// tz.TZDateTime _nextInstanceOfMorning() {
-//   final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-//   tz.TZDateTime scheduledDate =
-//       tz.TZDateTime(tz.local, now.year, now.month, now.day, 9); // 9:00 AM
-
-//   if (scheduledDate.isBefore(now)) {
-//     scheduledDate = scheduledDate.add(const Duration(days: 1));
-//   }
-
-//   return scheduledDate;
-// }
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class FriendListScreen extends StatefulWidget {
-  const FriendListScreen({super.key});
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  const FriendListScreen(
+      {super.key, required this.flutterLocalNotificationsPlugin});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -57,7 +25,43 @@ class _FriendListScreenState extends State<FriendListScreen> {
   void initState() {
     super.initState();
     _loadFriends();
-    // _scheduleDailyMorningNotification();
+    _scheduleDailyMorningNotification();
+  }
+
+  tz.TZDateTime _nextInstanceOfMorning() {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour, (now.minute / 5).ceil() * 5); // 9:00 AM
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    return scheduledDate;
+  }
+
+  void _scheduleDailyMorningNotification() async {
+    await widget.flutterLocalNotificationsPlugin.zonedSchedule(
+      0, // Notification ID
+      'Friendship Tracker',
+      'Remember to check in with your friends today!',
+      _nextInstanceOfMorning().add(const Duration(seconds: 5)),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'daily_morning_channel_id',
+          'Daily Morning Notification',
+          channelDescription:
+              'Notification to remind you to track your friendships every morning',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents:
+          DateTimeComponents.time, // Daily at the same time
+    );
   }
 
   Future<void> _loadFriends() async {

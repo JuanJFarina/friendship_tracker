@@ -7,6 +7,7 @@ import 'friend_list_screen.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
@@ -98,7 +99,7 @@ class FriendshipTracker extends StatelessWidget {
           margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         ),
       ),
-      home: const FriendListScreen(),
+      home: FriendListScreen(flutterLocalNotificationsPlugin: flutterLocalNotificationsPlugin),
     );
   }
 }
