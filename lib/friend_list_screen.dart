@@ -15,6 +15,7 @@ class FriendListScreen extends StatefulWidget {
 class _FriendListScreenState extends State<FriendListScreen> {
   List<Friend> friends = [];
   late SharedPreferences prefs;
+  bool isExpanded = false;
 
   @override
   void initState() {
@@ -361,6 +362,9 @@ class _FriendListScreenState extends State<FriendListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Friend> displayedFriends =
+        isExpanded ? friends : friends.take(3).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friendship Tracker'),
@@ -368,7 +372,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
         backgroundColor: Colors.purple[400], // Add a fun and bright color
         elevation: 0,
       ),
-      body: friends.isEmpty
+      body: displayedFriends.isEmpty
           ? Center(
               child: Text(
                 'No friends found',
@@ -379,77 +383,90 @@ class _FriendListScreenState extends State<FriendListScreen> {
                 ),
               ),
             )
-          : ListView.builder(
-              itemCount: friends.length,
-              itemBuilder: (context, index) {
-                final friend = friends[index];
-                return Card(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 3,
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(15),
-                    title: GestureDetector(
-                      child: Text(
-                        friend.name,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.purple[700], // Playful color
-                        ),
+          : Column(children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: displayedFriends.length,
+                  itemBuilder: (context, index) {
+                    final friend = displayedFriends[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      onTap: () {
-                        _openEditFriendDialog(friend);
-                      },
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Score: ${friend.score}, Status: ${friend.status}',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          "Birthdate: ${"${friend.birthdate?.toLocal()}".split(' ')[0]}, Days left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}",
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: const Icon(Icons.history),
-                          color: Colors.blueAccent,
-                          onPressed: () {
-                            _openHistoryDialog(friend);
+                      elevation: 3,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(15),
+                        title: GestureDetector(
+                          child: Text(
+                            friend.name,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.purple[700], // Playful color
+                            ),
+                          ),
+                          onTap: () {
+                            _openEditFriendDialog(friend);
                           },
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          color: Colors.green,
-                          onPressed: () {
-                            _openAddInteractionDialog(friend);
-                          },
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Score: ${friend.score}, Status: ${friend.status}',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "Birthdate: ${"${friend.birthdate?.toLocal()}".split(' ')[0]}, Days left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}",
+                              style: TextStyle(color: Colors.grey[600]),
+                            ),
+                          ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          color: Colors.redAccent,
-                          onPressed: () {
-                            _removeFriend(friend);
-                          },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            IconButton(
+                              icon: const Icon(Icons.history),
+                              color: Colors.blueAccent,
+                              onPressed: () {
+                                _openHistoryDialog(friend);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              color: Colors.green,
+                              onPressed: () {
+                                _openAddInteractionDialog(friend);
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: Colors.redAccent,
+                              onPressed: () {
+                                _removeFriend(friend);
+                              },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    isThreeLine: true,
-                  ),
-                );
-              },
-            ),
+                        isThreeLine: true,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (friends.length > 3) // Only show button if more than 3 friends
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      isExpanded = !isExpanded; // Toggle expanded state
+                    });
+                  },
+                  child: Text(isExpanded ? 'Show less' : 'Show more'),
+                ),
+            ]),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddFriendDialog,
         backgroundColor: Colors.purpleAccent, // Matches the app's theme
