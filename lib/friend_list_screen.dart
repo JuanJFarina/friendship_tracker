@@ -7,9 +7,33 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 class FriendListScreen extends StatefulWidget {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  const FriendListScreen(
-      {super.key, required this.flutterLocalNotificationsPlugin});
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+  FriendListScreen({super.key}) {
+    initNotification();
+  }
+
+  Future<void> onDidReceiveNotification(
+      NotificationResponse notificationResponse) async {}
+
+  Future<void> initNotification() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+      android: initializationSettingsAndroid,
+    );
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        onDidReceiveNotificationResponse: onDidReceiveNotification,
+        onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification);
+
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+  }
 
   @override
   // ignore: library_private_types_in_public_api
@@ -30,8 +54,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
 
   tz.TZDateTime _nextInstanceOfMorning() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour, (now.minute / 5).ceil() * 5); // 9:00 AM
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+        tz.local, now.year, now.month, now.day, now.hour, now.minute+1); // 9:00 AM
 
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
@@ -40,12 +64,12 @@ class _FriendListScreenState extends State<FriendListScreen> {
     return scheduledDate;
   }
 
-  void _scheduleDailyMorningNotification() async {
+  Future<void> _scheduleDailyMorningNotification() async {
     await widget.flutterLocalNotificationsPlugin.zonedSchedule(
       0, // Notification ID
       'Friendship Tracker',
       'Remember to check in with your friends today!',
-      _nextInstanceOfMorning().add(const Duration(seconds: 5)),
+      _nextInstanceOfMorning(),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'daily_morning_channel_id',
@@ -59,8 +83,6 @@ class _FriendListScreenState extends State<FriendListScreen> {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents:
-          DateTimeComponents.time, // Daily at the same time
     );
   }
 
