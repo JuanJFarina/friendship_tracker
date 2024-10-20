@@ -55,20 +55,12 @@ class _FriendListScreenState extends State<FriendListScreen> {
   Future<void> _scheduleNextNotification() async {
     TZDateTime? date;
     String? message;
-    if (Utils.isLessThanTwoHoursAway(10)) {
+    if (Utils.isLessThanFourHoursAway(10)) {
       date = Utils.nextInstanceOfNHour(10);
       message = "Remember to check in with your friends today ! :)";
     }
-    if (Utils.isLessThanTwoHoursAway(12)) {
-      date = Utils.nextInstanceOfNHour(12);
-      message = "Remember to check in with your friends today ! :)";
-    }
-    if (Utils.isLessThanTwoHoursAway(18)) {
+    else if (Utils.isLessThanFourHoursAway(18)) {
       date = Utils.nextInstanceOfNHour(18);
-      message = "Why not go out with your friends tonight ?";
-    }
-    if (Utils.isLessThanTwoHoursAway(20)) {
-      date = Utils.nextInstanceOfNHour(20);
       message = "Why not go out with your friends tonight ?";
     }
     if (date != null && message != null) {
@@ -92,6 +84,10 @@ class _FriendListScreenState extends State<FriendListScreen> {
             UILocalNotificationDateInterpretation.absoluteTime,
       );
     }
+  }
+
+  Future<void> _cancelAllNotifications() async {
+    await widget.flutterLocalNotificationsPlugin.cancelAll();
   }
 
   Future<void> _loadFriends() async {
@@ -158,6 +154,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       });
       _saveFriends();
     });
+    _cancelAllNotifications();
   }
 
   void _openAddFriendDialog() {

@@ -39,12 +39,12 @@ class Utils {
     return scheduledDate;
   }
 
-  static bool isLessThanTwoHoursAway(int hour) {
+  static bool isLessThanFourHoursAway(int hour) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     final tz.TZDateTime scheduledDate = nextInstanceOfNHour(hour);
 
     final Duration difference = scheduledDate.difference(now);
 
-    return difference <= const Duration(hours: 2) && !difference.isNegative;
+    return difference <= const Duration(hours: 4) && !difference.isNegative;
   }
 }
