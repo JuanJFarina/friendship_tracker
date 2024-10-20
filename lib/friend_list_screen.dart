@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart';
 import 'dart:convert';
 import 'friend.dart';
 import 'utils.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class FriendListScreen extends StatefulWidget {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -49,41 +49,49 @@ class _FriendListScreenState extends State<FriendListScreen> {
   void initState() {
     super.initState();
     _loadFriends();
-    _scheduleDailyMorningNotification();
+    _scheduleNextNotification();
   }
 
-  tz.TZDateTime _nextInstanceOfMorning() {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-        tz.local, now.year, now.month, now.day, now.hour, now.minute+1); // 9:00 AM
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+  Future<void> _scheduleNextNotification() async {
+    TZDateTime? date;
+    String? message;
+    if (Utils.isLessThanTwoHoursAway(10)) {
+      date = Utils.nextInstanceOfNHour(10);
+      message = "Remember to check in with your friends today ! :)";
     }
-
-    return scheduledDate;
-  }
-
-  Future<void> _scheduleDailyMorningNotification() async {
-    await widget.flutterLocalNotificationsPlugin.zonedSchedule(
-      0, // Notification ID
-      'Friendship Tracker',
-      'Remember to check in with your friends today!',
-      _nextInstanceOfMorning(),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'daily_morning_channel_id',
-          'Daily Morning Notification',
-          channelDescription:
-              'Notification to remind you to track your friendships every morning',
-          importance: Importance.high,
-          priority: Priority.high,
+    if (Utils.isLessThanTwoHoursAway(12)) {
+      date = Utils.nextInstanceOfNHour(12);
+      message = "Remember to check in with your friends today ! :)";
+    }
+    if (Utils.isLessThanTwoHoursAway(18)) {
+      date = Utils.nextInstanceOfNHour(18);
+      message = "Why not go out with your friends tonight ?";
+    }
+    if (Utils.isLessThanTwoHoursAway(20)) {
+      date = Utils.nextInstanceOfNHour(20);
+      message = "Why not go out with your friends tonight ?";
+    }
+    if (date != null && message != null) {
+      await widget.flutterLocalNotificationsPlugin.zonedSchedule(
+        0,
+        'Friendship Tracker',
+        message,
+        date,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'friendly_channel_id',
+            'Friendly Notification',
+            channelDescription:
+                'Notification to remind you to check in with your friends',
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
         ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+      );
+    }
   }
 
   Future<void> _loadFriends() async {

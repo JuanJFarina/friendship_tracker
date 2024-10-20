@@ -1,3 +1,5 @@
+import 'package:timezone/timezone.dart' as tz;
+
 class Utils {
   static DateTime? getNextBirthday(DateTime? birthdate, DateTime today) {
     if (birthdate == null) return null;
@@ -23,5 +25,26 @@ class Utils {
     }
     int days = next.difference(DateTime.now()).inDays;
     return days + 1;
+  }
+
+  static tz.TZDateTime nextInstanceOfNHour(int hour) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
+        now.day, hour);
+
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    return scheduledDate;
+  }
+
+  static bool isLessThanTwoHoursAway(int hour) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    final tz.TZDateTime scheduledDate = nextInstanceOfNHour(hour);
+
+    final Duration difference = scheduledDate.difference(now);
+
+    return difference <= const Duration(hours: 2) && !difference.isNegative;
   }
 }
