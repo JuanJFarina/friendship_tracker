@@ -98,6 +98,15 @@ class Friend {
     }
   }
 
+  bool needsInteraction() {
+    if (history.isEmpty) {
+      return true;
+    }
+    Map<String, dynamic> lastInteraction = history.last;
+    DateTime lastInteractionDate = DateTime.parse(lastInteraction['date']);
+    return lastInteraction['points'] <= DateTime.now().difference(lastInteractionDate).inDays;
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,

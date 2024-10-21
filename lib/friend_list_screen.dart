@@ -486,6 +486,10 @@ class _FriendListScreenState extends State<FriendListScreen> {
                   itemCount: displayedFriends.length,
                   itemBuilder: (context, index) {
                     final friend = displayedFriends[index];
+                    Color color = !friend.needsInteraction()
+                        ? Colors.purple[700]!
+                        : Colors.grey[700]!;
+                        print(friend.needsInteraction());
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 15),
@@ -501,7 +505,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.purple[700], // Playful color
+                              color: color,
                             ),
                           ),
                           onTap: () {
