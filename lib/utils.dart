@@ -1,6 +1,7 @@
 import 'package:timezone/timezone.dart' as tz;
 
 class Utils {
+  static int difference = getTimezoneDifference();
   static DateTime? getNextBirthday(DateTime? birthdate, DateTime today) {
     if (birthdate == null) return null;
 
@@ -27,24 +28,32 @@ class Utils {
     return days + 1;
   }
 
-  static tz.TZDateTime nextInstanceOfNHour(int hour) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
-        now.day, hour);
+  static int getTimezoneDifference() {
+    final DateTime now = DateTime.now();
+    final tz.TZDateTime tznow = tz.TZDateTime.now(tz.local);
+    return tznow.hour - now.hour;
+  }
+
+  static tz.TZDateTime nextInstanceOfNHour(int hour, {int minutes = 0}) {
+    DateTime now = DateTime.now();
+    DateTime scheduledDate =
+        DateTime(now.year, now.month, now.day, hour, minutes);
 
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
-
-    return scheduledDate;
+    return tz.TZDateTime(tz.local, scheduledDate.year, scheduledDate.month,
+            scheduledDate.day, hour, minutes)
+        .add(Duration(hours: difference));
   }
 
   static bool isLessThanFourHoursAway(int hour) {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    final tz.TZDateTime scheduledDate = nextInstanceOfNHour(hour);
+    final DateTime now = DateTime.now();
+    final DateTime scheduledDateTime =
+        DateTime(now.year, now.month, now.day, hour);
 
-    final Duration difference = scheduledDate.difference(now);
+    final Duration durationDiff = scheduledDateTime.difference(now);
 
-    return difference <= const Duration(hours: 4) && !difference.isNegative;
+    return durationDiff <= const Duration(hours: 4) && !durationDiff.isNegative;
   }
 }

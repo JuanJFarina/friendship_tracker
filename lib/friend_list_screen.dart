@@ -44,6 +44,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
   List<Friend> friends = [];
   late SharedPreferences prefs;
   bool isExpanded = false;
+  bool canSchedule = true;
+  int hoursFromLastInteraction = 0;
 
   @override
   void initState() {
@@ -52,23 +54,43 @@ class _FriendListScreenState extends State<FriendListScreen> {
     _scheduleNextNotification();
   }
 
+  void _getHoursFromLastInteraction() {
+    int hours = 240;
+    for (var friend in friends) {
+      if (friend.history.isNotEmpty) {
+        DateTime lastInteraction = DateTime.parse(friend.history.last['date']);
+        Duration difference = DateTime.now().difference(lastInteraction);
+        if (hours > difference.inHours) {
+          hours = difference.inHours;
+        }
+      }
+    }
+    hoursFromLastInteraction = hours;
+  }
+
   Future<void> _scheduleNextNotification() async {
     TZDateTime? date;
     String? message;
-    if (Utils.isLessThanFourHoursAway(10)) {
+    bool scheduleNotification = false;
+    if (Utils.isLessThanFourHoursAway(10) && hoursFromLastInteraction >= 24) {
       date = Utils.nextInstanceOfNHour(10);
       message = "Remember to check in with your friends today ! :)";
-    }
-    else if (Utils.isLessThanFourHoursAway(18)) {
+      scheduleNotification = true;
+    } else if (Utils.isLessThanFourHoursAway(18) &&
+        hoursFromLastInteraction >= 24 &&
+        (DateTime.now().weekday == 5 || DateTime.now().weekday == 6)) {
       date = Utils.nextInstanceOfNHour(18);
       message = "Why not go out with your friends tonight ?";
+      scheduleNotification = true;
+    } else {
+      canSchedule = true;
     }
-    if (date != null && message != null) {
+    if (scheduleNotification && canSchedule) {
       await widget.flutterLocalNotificationsPlugin.zonedSchedule(
         0,
         'Friendship Tracker',
         message,
-        date,
+        date!,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'friendly_channel_id',
@@ -83,6 +105,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
       );
+      canSchedule = false;
     }
   }
 
@@ -100,6 +123,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
         _sortFriendsByUpcomingBirthday();
       });
     }
+    _getHoursFromLastInteraction();
   }
 
   void _sortFriendsByUpcomingBirthday() {
@@ -208,7 +232,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                   title: Text(
                       "${interaction['interaction']} (${interaction['points']} pts)"),
                   subtitle: Text(
-                      "${interaction['date']} - ${interaction['quality']}"),
+                      "${interaction['date'].toString().split("T")[0]} - ${interaction['quality']}"),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () {
@@ -315,7 +339,12 @@ class _FriendListScreenState extends State<FriendListScreen> {
                       );
                       if (pickedDate != null && pickedDate != selectedDate) {
                         setState(() {
-                          selectedDate = pickedDate; // Update selected date
+                          selectedDate = DateTime(
+                              pickedDate.year,
+                              pickedDate.month,
+                              pickedDate.day,
+                              DateTime.now().hour,
+                              DateTime.now().minute); // Update selected date
                         });
                       }
                     },
@@ -338,7 +367,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                     friend,
                     Friend.calculateScore(points, selectedQuality),
                     selectedInteraction,
-                    selectedDate.toIso8601String().split('T')[0],
+                    selectedDate.toIso8601String().split('.')[0],
                     selectedQuality);
                 Navigator.of(context).pop();
               },
