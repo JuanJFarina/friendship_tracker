@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'friend_list_screen.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
@@ -18,10 +17,7 @@ class FriendshipTracker extends StatelessWidget {
     return MaterialApp(
       title: 'Friendship Tracker',
       theme: ThemeData(
-        // Use a soft, neutral background color
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-
-        // Define the text theme with a friendly, rounded font and a simple hierarchy
         textTheme: const TextTheme(
           displayLarge: TextStyle(
             fontFamily: 'Poppins',
@@ -41,29 +37,23 @@ class FriendshipTracker extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
-        // Rounded buttons with accent color and soft shadows
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFA726), // Accent orange color
+            backgroundColor: const Color(0xFFFFA726),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12), // Rounded corners
+              borderRadius: BorderRadius.circular(12),
             ),
-            elevation: 2, // Soft shadow
+            elevation: 2,
           ),
         ),
-
-        // Floating action button to follow the minimalist, rounded theme
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFF29B6F6), // Friendly blue accent color
+          backgroundColor: Color(0xFF29B6F6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
         ),
-
-        // Define app bar style to keep it simple and minimalist
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF29B6F6), // Use the same blue accent
+          backgroundColor: Color(0xFF29B6F6),
           elevation: 0,
           centerTitle: true,
           titleTextStyle: TextStyle(
@@ -73,8 +63,6 @@ class FriendshipTracker extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-
-        // Rounded corners and slight shadows for cards
         cardTheme: CardTheme(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

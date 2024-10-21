@@ -130,20 +130,17 @@ class _FriendListScreenState extends State<FriendListScreen> {
     DateTime today = DateTime.now();
 
     friends.sort((a, b) {
-      // Get the next birthday for friend a
       DateTime? nextBirthdayA = Utils.getNextBirthday(a.birthdate, today);
-      // Get the next birthday for friend b
       DateTime? nextBirthdayB = Utils.getNextBirthday(b.birthdate, today);
 
-      // Sort by the number of days until their next birthday
       if (nextBirthdayA != null && nextBirthdayB != null) {
         return nextBirthdayA.compareTo(nextBirthdayB);
       } else if (nextBirthdayA != null) {
-        return -1; // friend a's birthday is closer
+        return -1;
       } else if (nextBirthdayB != null) {
-        return 1; // friend b's birthday is closer
+        return 1;
       } else {
-        return 0; // Both friends have no birthdate
+        return 0;
       }
     });
   }
@@ -237,10 +234,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
                     icon: const Icon(Icons.delete),
                     onPressed: () {
                       _removeInteraction(friend, index);
-                      Navigator.of(context)
-                          .pop(); // Close the dialog and refresh
-                      _openHistoryDialog(
-                          friend); // Re-open the dialog with updated history
+                      Navigator.of(context).pop();
+                      _openHistoryDialog(friend);
                     },
                   ),
                 );
@@ -262,9 +257,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
 
   void _removeInteraction(Friend friend, int index) {
     setState(() {
-      friend.history
-          .removeAt(index); // Remove the interaction at the given index
-      _saveFriends(); // Save the updated list
+      friend.history.removeAt(index);
+      _saveFriends();
     });
   }
 
@@ -328,14 +322,13 @@ class _FriendListScreenState extends State<FriendListScreen> {
                 children: [
                   const Text('Date: '),
                   TextButton(
-                    child: Text("${selectedDate.toLocal()}"
-                        .split(' ')[0]), // Show selected date
+                    child: Text("${selectedDate.toLocal()}".split(' ')[0]),
                     onPressed: () async {
                       DateTime? pickedDate = await showDatePicker(
                         context: context,
-                        initialDate: selectedDate, // Default to current date
-                        firstDate: DateTime(2000), // Start from year 2000
-                        lastDate: DateTime.now(), // Don't allow future dates
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
                       );
                       if (pickedDate != null && pickedDate != selectedDate) {
                         setState(() {
@@ -344,7 +337,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                               pickedDate.month,
                               pickedDate.day,
                               DateTime.now().hour,
-                              DateTime.now().minute); // Update selected date
+                              DateTime.now().minute);
                         });
                       }
                     },
@@ -387,7 +380,6 @@ class _FriendListScreenState extends State<FriendListScreen> {
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          // Use StatefulBuilder to manage state inside dialog
           builder: (context, setState) {
             return AlertDialog(
               title: const Text('Edit Friend'),
@@ -431,11 +423,10 @@ class _FriendListScreenState extends State<FriendListScreen> {
                   onPressed: () {
                     setState(() {
                       friend.name = nameController.text;
-                      friend.birthdate =
-                          selectedDate; // Save the updated birthdate
+                      friend.birthdate = selectedDate;
                     });
                     Navigator.of(context).pop();
-                    _saveFriends(); // Persist changes
+                    _saveFriends();
                     _loadFriends();
                   },
                 ),
@@ -452,8 +443,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
     return await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: DateTime(1920), // Set the earliest date available
-      lastDate: DateTime.now(), // Disallow future dates
+      firstDate: DateTime(1920),
+      lastDate: DateTime.now(),
     );
   }
 
@@ -466,7 +457,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       appBar: AppBar(
         title: const Text('Friendship Tracker'),
         centerTitle: true,
-        backgroundColor: Colors.purple[400], // Add a fun and bright color
+        backgroundColor: Colors.purple[400],
         elevation: 0,
       ),
       body: displayedFriends.isEmpty
@@ -486,10 +477,14 @@ class _FriendListScreenState extends State<FriendListScreen> {
                   itemCount: displayedFriends.length,
                   itemBuilder: (context, index) {
                     final friend = displayedFriends[index];
-                    Color color = !friend.needsInteraction()
+                    Color nameColor = !friend.needsInteraction()
                         ? Colors.purple[700]!
                         : Colors.grey[700]!;
-                        print(friend.needsInteraction());
+                    Color scoreColor = friend.score > 10
+                        ? Colors.grey[700]!
+                        : friend.score <= 10 && friend.score > 3
+                            ? Colors.yellow[900]!
+                            : Colors.red[800]!;
                     return Card(
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 15),
@@ -505,7 +500,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: color,
+                              color: nameColor,
                             ),
                           ),
                           onTap: () {
@@ -517,7 +512,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
                           children: [
                             Text(
                               'Score: ${friend.score}, Status: ${friend.status}',
-                              style: const TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 16, color: scoreColor),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -558,11 +553,11 @@ class _FriendListScreenState extends State<FriendListScreen> {
                   },
                 ),
               ),
-              if (friends.length > 3) // Only show button if more than 3 friends
+              if (friends.length > 3)
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      isExpanded = !isExpanded; // Toggle expanded state
+                      isExpanded = !isExpanded;
                     });
                   },
                   child: Text(isExpanded ? 'Show less' : 'Show more'),
@@ -570,7 +565,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
             ]),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddFriendDialog,
-        backgroundColor: Colors.purpleAccent, // Matches the app's theme
+        backgroundColor: Colors.purpleAccent,
         child: const Icon(Icons.add),
       ),
     );

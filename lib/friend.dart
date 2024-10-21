@@ -37,7 +37,7 @@ class Friend {
 
   String get status {
     if (history.isEmpty) {
-      return 'No interactions yet'; // Default message when history is empty
+      return 'No interactions yet';
     }
     Map<String, dynamic> lastInteraction = history.last;
     DateTime lastInteractionDate = DateTime.parse(lastInteraction['date']);
@@ -104,7 +104,8 @@ class Friend {
     }
     Map<String, dynamic> lastInteraction = history.last;
     DateTime lastInteractionDate = DateTime.parse(lastInteraction['date']);
-    return lastInteraction['points'] <= DateTime.now().difference(lastInteractionDate).inDays;
+    return lastInteraction['points'] <=
+        DateTime.now().difference(lastInteractionDate).inDays;
   }
 
   Map<String, dynamic> toJson() {
@@ -118,9 +119,8 @@ class Friend {
   static Friend fromJson(Map<String, dynamic> json) {
     return Friend(
       name: json['name'],
-      birthdate: json['birthdate'] != null
-          ? DateTime.parse(json['birthdate']) // Parse DateTime from String
-          : null,
+      birthdate:
+          json['birthdate'] != null ? DateTime.parse(json['birthdate']) : null,
       history: List<Map<String, dynamic>>.from(json['history']),
     );
   }
