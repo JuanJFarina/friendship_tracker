@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart';
 import 'dart:convert';
 import 'friend.dart';
+import 'friend_list_tile.dart';
 import 'utils.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class FriendListScreen extends StatefulWidget {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -46,6 +47,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
   bool isExpanded = false;
   bool canSchedule = true;
   int hoursFromLastInteraction = 0;
+  String filter = '';
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -450,8 +453,12 @@ class _FriendListScreenState extends State<FriendListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Friend> filteredFriends = friends
+        .where((friend) =>
+            friend.name.toLowerCase().contains(filter.toLowerCase()))
+        .toList();
     List<Friend> displayedFriends =
-        isExpanded ? friends : friends.take(3).toList();
+        isExpanded ? filteredFriends : filteredFriends.take(3).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -460,114 +467,86 @@ class _FriendListScreenState extends State<FriendListScreen> {
         backgroundColor: Colors.purple[400],
         elevation: 0,
       ),
-      body: displayedFriends.isEmpty
-          ? Center(
-              child: Text(
-                'No friends found',
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            )
-          : Column(children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: displayedFriends.length,
-                  itemBuilder: (context, index) {
-                    final friend = displayedFriends[index];
-                    Color nameColor = !friend.needsInteraction()
-                        ? Colors.purple[700]!
-                        : Colors.grey[700]!;
-                    Color scoreColor = friend.score > 10
-                        ? Colors.grey[700]!
-                        : friend.score <= 10 && friend.score > 3
-                            ? Colors.yellow[900]!
-                            : Colors.red[800]!;
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 3,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(15),
-                        title: GestureDetector(
-                          child: Text(
-                            friend.name,
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: nameColor,
-                            ),
-                          ),
-                          onTap: () {
-                            _openEditFriendDialog(friend);
-                          },
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Score: ${friend.score}, Status: ${friend.status}',
-                              style: TextStyle(fontSize: 16, color: scoreColor),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Birthdate: ${"${friend.birthdate?.toLocal()}".split(' ')[0]}, Days left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}",
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            IconButton(
-                              icon: const Icon(Icons.history),
-                              color: Colors.blueAccent,
-                              onPressed: () {
-                                _openHistoryDialog(friend);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              color: Colors.green,
-                              onPressed: () {
-                                _openAddInteractionDialog(friend);
-                              },
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              color: Colors.redAccent,
-                              onPressed: () {
-                                _removeFriend(friend);
-                              },
-                            ),
-                          ],
-                        ),
-                        isThreeLine: true,
-                      ),
-                    );
-                  },
-                ),
-              ),
-              if (friends.length > 3)
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      isExpanded = !isExpanded;
-                    });
-                  },
-                  child: Text(isExpanded ? 'Show less' : 'Show more'),
-                ),
-            ]),
+      body: Column(
+        children: [
+          _buildSearchField(),
+          displayedFriends.isEmpty
+              ? _buildNoFriendsWidget()
+              : _buildFriendList(displayedFriends),
+          if (filteredFriends.length > 3) _buildShowMoreButton(),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddFriendDialog,
         backgroundColor: Colors.purpleAccent,
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          labelText: 'Search Friends',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          labelStyle: TextStyle(
+            color: Colors.grey[500],
+          ),
+        ),
+        onChanged: (value) {
+          setState(() {
+            filter = value;
+          });
+        },
+        style: TextStyle(color: Colors.grey[700]),
+      ),
+    );
+  }
+
+  Widget _buildNoFriendsWidget() {
+    return Center(
+      child: Text(
+        'No friends found',
+        style: TextStyle(
+          color: Colors.grey[700],
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFriendList(List<Friend> displayedFriends) {
+    return Expanded(
+      child: ListView.builder(
+        itemCount: displayedFriends.length,
+        itemBuilder: (context, index) {
+          final friend = displayedFriends[index];
+          return FriendListTile(
+            friend: friend,
+            onEdit: () => _openEditFriendDialog(friend),
+            onViewHistory: () => _openHistoryDialog(friend),
+            onAddInteraction: () => _openAddInteractionDialog(friend),
+            onRemove: () => _removeFriend(friend),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildShowMoreButton() {
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          isExpanded = !isExpanded;
+        });
+      },
+      child: Text(isExpanded ? 'Show less' : 'Show more'),
     );
   }
 }
