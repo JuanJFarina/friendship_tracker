@@ -30,16 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^2.3.2
+  google_fonts: ^6.2.1
   shared_preferences: ^2.0.0
   flutter_local_notifications: ^17.2.1+2
   timezone: ^0.9.4
   flutter_timezone: ^3.0.1
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
@@ -50,7 +45,32 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
+
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.8
+  flutter_launcher_icons: ^0.14.1
+
+# Icon of the app
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/friendship_tracker_icon.png"
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/icons/friendship_tracker_icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
+  windows:
+    generate: true
+    image_path: "assets/icons/friendship_tracker_icon.png"
+    icon_size: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/friendship_tracker_icon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

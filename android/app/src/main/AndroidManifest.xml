@@ -8,9 +8,9 @@
 
     <!-- Application block -->
     <application
-        android:label="friendship_tracker"
+        android:label="Friendship Tracker"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/launcher_icon">
 
         <!-- Main activity block -->
         <activity
