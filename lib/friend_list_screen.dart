@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'friend.dart';
 import 'friend_list_tile.dart';
 import 'utils.dart';
+import 'color_constants.dart';
 
 class FriendListScreen extends StatefulWidget {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -464,7 +465,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       appBar: AppBar(
         title: const Text('Friendship Tracker'),
         centerTitle: true,
-        backgroundColor: Colors.purple[400],
+        backgroundColor: mainColor,
         elevation: 0,
       ),
       body: Column(
@@ -478,7 +479,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openAddFriendDialog,
-        backgroundColor: Colors.purpleAccent,
+        backgroundColor: mainColor,
         child: const Icon(Icons.add),
       ),
     );
@@ -495,7 +496,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
             borderRadius: BorderRadius.circular(8),
           ),
           labelStyle: TextStyle(
-            color: Colors.grey[500],
+            color: commonGrey,
           ),
         ),
         onChanged: (value) {
@@ -503,7 +504,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
             filter = value;
           });
         },
-        style: TextStyle(color: Colors.grey[700]),
+        style: TextStyle(color: commonGrey),
       ),
     );
   }
@@ -513,7 +514,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       child: Text(
         'No friends found',
         style: TextStyle(
-          color: Colors.grey[700],
+          color: commonGrey,
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),

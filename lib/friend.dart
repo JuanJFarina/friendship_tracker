@@ -46,23 +46,23 @@ class Friend {
     int interactionPoints = lastInteraction['points'];
     if (interactionPoints > daysSinceInteraction) {
       if (score >= 60) {
-        return "OK, you're great friends !";
+        return "Great, you're pretty much best friends !";
       } else if (score >= 30) {
-        return 'OK, you have a good relationship, try doing something new !';
+        return 'You have a good relationship, try doing something new !';
       } else if (score >= 15) {
-        return "OK, starting to grow, why not go out together ?";
+        return "Your friendship is growing, why not go out together ?";
       } else {
-        return 'OK, just starting so keep reaching out';
+        return "You're just starting so keep reaching out !";
       }
     }
-    if (score >= 60) {
-      return "OK, you're great friends but keep in touch";
-    } else if (score >= 30) {
-      return 'BAD, reach out more often';
-    } else if (score >= 15) {
-      return 'BAD, get in touch as soon as possible';
+    if (score >= 20) {
+      return "Now's a good time to go out with your friend";
+    } else if (score >= 10) {
+      return 'Time to make a call and do something together !';
+    } else if (score >= 5) {
+      return "Hey, go see how is your friend doing !";
     } else {
-      return 'BAD, starting over again';
+      return "You'll have to start over again";
     }
   }
 

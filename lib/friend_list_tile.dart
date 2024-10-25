@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'friend.dart';
 import 'utils.dart';
+import 'color_constants.dart';
 
 class FriendListTile extends StatelessWidget {
   final Friend friend;
@@ -19,8 +20,10 @@ class FriendListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color nameColor = _getNameColor(friend);
+    Color nameColor = !friend.needsInteraction() ? mainColor : commonGrey;
     Color scoreColor = _getScoreColor(friend);
+    Color birthdayColor = _getBirthdayColor(friend);
+    String birthdate = _getBirthdayText(friend);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -31,6 +34,7 @@ class FriendListTile extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.all(15),
         title: GestureDetector(
+          onTap: onEdit,
           child: Text(
             friend.name,
             style: TextStyle(
@@ -39,19 +43,18 @@ class FriendListTile extends StatelessWidget {
               color: nameColor,
             ),
           ),
-          onTap: onEdit,
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Score: ${friend.score}, Status: ${friend.status}',
+              'Interaction score: ${friend.score}\n${friend.status}',
               style: TextStyle(fontSize: 16, color: scoreColor),
             ),
             const SizedBox(height: 4),
             Text(
-              "Birthdate: ${"${friend.birthdate?.toLocal()}".split(' ')[0]}, Days left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}",
-              style: TextStyle(color: Colors.grey[600]),
+              birthdate,
+              style: TextStyle(color: birthdayColor, fontStyle: FontStyle.italic),
             ),
           ],
         ),
@@ -60,17 +63,17 @@ class FriendListTile extends StatelessWidget {
           children: <Widget>[
             IconButton(
               icon: const Icon(Icons.history),
-              color: Colors.blueAccent,
+              color: blueAccent,
               onPressed: onViewHistory,
             ),
             IconButton(
               icon: const Icon(Icons.add),
-              color: Colors.green,
+              color: greenAccent,
               onPressed: onAddInteraction,
             ),
             IconButton(
               icon: const Icon(Icons.delete),
-              color: Colors.redAccent,
+              color: redAlert,
               onPressed: onRemove,
             ),
           ],
@@ -80,17 +83,29 @@ class FriendListTile extends StatelessWidget {
     );
   }
 
-  Color _getNameColor(Friend friend) {
-    return !friend.needsInteraction() ? Colors.purple[700]! : Colors.grey[700]!;
-  }
-
   Color _getScoreColor(Friend friend) {
     if (friend.score > 10) {
-      return Colors.grey[700]!;
+      return commonGrey;
     } else if (friend.score <= 10 && friend.score > 3) {
-      return Colors.yellow[900]!;
+      return yellowAlert;
     } else {
-      return Colors.red[800]!;
+      return redAlert;
     }
+  }
+  
+  Color _getBirthdayColor(Friend friend) {
+    final days = Utils.getDaysToNextBirthdate(friend.birthdate);
+    if (days != -1 && days < 30) {
+      return mainColor;
+    }
+    return commonGrey;
+  }
+
+  String _getBirthdayText(Friend friend) {
+    final birthdateString = "${friend.birthdate?.toLocal()}".split(' ')[0];
+    if (birthdateString != "null"){
+      return "Birthdate: $birthdateString\t\t\t\t\tDays left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}";
+    }
+    return "Add your friend's birthdate to track their birthday!";
   }
 }

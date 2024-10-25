@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'friend_list_screen.dart';
+import 'color_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,29 +18,29 @@ class FriendshipTracker extends StatelessWidget {
     return MaterialApp(
       title: 'Friendship Tracker',
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        scaffoldBackgroundColor: plainWhite,
         textTheme: const TextTheme(
           displayLarge: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 32,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF333333),
+            color: commonGrey,
           ),
           bodyLarge: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 18,
-            color: Color(0xFF666666),
+            color: commonGrey,
           ),
           labelLarge: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 16,
-            color: Colors.white,
+            color: plainWhite,
             fontWeight: FontWeight.w600,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFFA726),
+            backgroundColor: yellowAlert,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -47,20 +48,20 @@ class FriendshipTracker extends StatelessWidget {
           ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: Color(0xFF29B6F6),
+          backgroundColor: blueAccent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(16)),
           ),
         ),
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF29B6F6),
+          backgroundColor: blueAccent,
           elevation: 0,
           centerTitle: true,
           titleTextStyle: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: plainWhite,
           ),
         ),
         cardTheme: CardTheme(
