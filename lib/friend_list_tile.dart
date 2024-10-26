@@ -104,7 +104,7 @@ class FriendListTile extends StatelessWidget {
   String _getBirthdayText(Friend friend) {
     final birthdateString = "${friend.birthdate?.toLocal()}".split(' ')[0];
     if (birthdateString != "null"){
-      return "Birthdate: $birthdateString\t\t\t\t\tDays left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}";
+      return "Birthdate: $birthdateString\nDays left: ${Utils.getDaysToNextBirthdate(friend.birthdate)}";
     }
     return "Add your friend's birthdate to track their birthday!";
   }
