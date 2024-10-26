@@ -20,7 +20,7 @@ class FriendListScreen extends StatefulWidget {
 
   Future<void> initNotification() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('friendship_tracker_icon');
 
     const InitializationSettings initializationSettings =
         InitializationSettings(
