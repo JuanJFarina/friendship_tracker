@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:timezone/timezone.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'dart:convert';
 import 'friend.dart';
 import 'friend_list_tile.dart';
@@ -55,15 +55,44 @@ class _FriendListScreenState extends State<FriendListScreen> {
   void initState() {
     super.initState();
     _loadFriends();
+    _scheduleTrackFriendsNotification();
     _scheduleNextNotification();
   }
 
+  Future<void> _scheduleTrackFriendsNotification() async {
+    await widget.flutterLocalNotificationsPlugin.cancel(1);
+    await widget.flutterLocalNotificationsPlugin.zonedSchedule(
+      1,
+      'Friendship Tracker',
+      "Don't forget to track your interactions with your friends !",
+      tz.TZDateTime.now(tz.local).add(Duration(hours: 48)),
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'friendly_channel_id',
+          'Friendly Notification',
+          channelDescription:
+              'Notification to remind you to check in with your friends',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
   void _getHoursFromLastInteraction() {
-    int hours = 240;
+    int hours = 2400;
     for (var friend in friends) {
       if (friend.history.isNotEmpty) {
-        DateTime lastInteraction = DateTime.parse(friend.history.last['date']);
-        Duration difference = DateTime.now().difference(lastInteraction);
+        DateTime latestInteraction = DateTime.parse(friend.history[0]['date']);
+        for (var interaction in friend.history) {
+          if (latestInteraction.isBefore(DateTime.parse(interaction['date']))) {
+            latestInteraction = DateTime.parse(interaction['date']);
+          }
+        }
+        Duration difference = DateTime.now().difference(latestInteraction);
         if (hours > difference.inHours) {
           hours = difference.inHours;
         }
@@ -73,15 +102,16 @@ class _FriendListScreenState extends State<FriendListScreen> {
   }
 
   Future<void> _scheduleNextNotification() async {
-    TZDateTime? date;
+    tz.TZDateTime? date;
     String? message;
     bool scheduleNotification = false;
+    _getHoursFromLastInteraction();
     if (Utils.isLessThanFourHoursAway(10) && hoursFromLastInteraction >= 24) {
       date = Utils.nextInstanceOfNHour(10);
       message = "Remember to check in with your friends today ! :)";
       scheduleNotification = true;
     } else if (Utils.isLessThanFourHoursAway(18) &&
-        hoursFromLastInteraction >= 24 &&
+        hoursFromLastInteraction >= 12 &&
         (DateTime.now().weekday == 5 || DateTime.now().weekday == 6)) {
       date = Utils.nextInstanceOfNHour(18);
       message = "Why not go out with your friends tonight ?";
@@ -113,8 +143,8 @@ class _FriendListScreenState extends State<FriendListScreen> {
     }
   }
 
-  Future<void> _cancelAllNotifications() async {
-    await widget.flutterLocalNotificationsPlugin.cancelAll();
+  Future<void> _cancelInteractionNotifications() async {
+    await widget.flutterLocalNotificationsPlugin.cancel(0);
   }
 
   Future<void> _loadFriends() async {
@@ -127,7 +157,6 @@ class _FriendListScreenState extends State<FriendListScreen> {
         _sortFriendsByUpcomingBirthday();
       });
     }
-    _getHoursFromLastInteraction();
   }
 
   void _sortFriendsByUpcomingBirthday() {
@@ -179,7 +208,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
       });
       _saveFriends();
     });
-    _cancelAllNotifications();
+    _cancelInteractionNotifications();
   }
 
   void _openAddFriendDialog() {
