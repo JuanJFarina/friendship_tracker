@@ -108,7 +108,7 @@ class _FriendListScreenState extends State<FriendListScreen> {
     _getHoursFromLastInteraction();
     if (Utils.isLessThanFourHoursAway(10) && hoursFromLastInteraction >= 24) {
       date = Utils.nextInstanceOfNHour(10);
-      message = "Remember to check in with your friends today ! :)";
+      message = "Remember to say hi to your friends today ! :)";
       scheduleNotification = true;
     } else if (Utils.isLessThanFourHoursAway(18) &&
         hoursFromLastInteraction >= 4 &&
@@ -120,7 +120,13 @@ class _FriendListScreenState extends State<FriendListScreen> {
         hoursFromLastInteraction >= 4 &&
         (DateTime.now().weekday == 5 || DateTime.now().weekday == 6)) {
       date = Utils.nextInstanceOfNHour(22);
-      message = "Last chance ! Send a message to your friends and see what they're doing";
+      message = "Last chance ! Send a message to your friends to see what they're doing !";
+      scheduleNotification = true;
+    } else if (Utils.isLessThanFourHoursAway(16) &&
+        hoursFromLastInteraction >= 4 &&
+        DateTime.now().weekday == 7) {
+      date = Utils.nextInstanceOfNHour(16);
+      message = "How're you doing ? We bet you have a friend waiting for that same question :)";
       scheduleNotification = true;
     } else {
       canSchedule = true;
